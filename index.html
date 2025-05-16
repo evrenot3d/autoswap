@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="autoSwap Local app">    
+    <title>AutoSwap</title>
+    <link rel="icon" href="app-icon.ico" type="image/x-icon">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom styles -->
+    <link rel="stylesheet" type="text/css" href="./style.css">
+    <link rel="stylesheet" type="text/css" href="./app.css">
+    
+    <script>
+        // Save data
+        function saveData() {   
+            location.reload();
+        }
+    </script>
+    <script src="./swapper.js" content="charset=&#39;utf-8&#39;"></script>
+    <script src="./spark-md5.min.js"></script> <!-- Library for MD5 calculation -->
+    <script src="./jszip_m.js"></script> <!-- JSZip library for ZIP file handling -->
+</head>
+<body>
+
+    <div id="app_wrapper" class="container-fluid px-4 py-3">
+        <!-- Header section -->
+        <header class="bg-dark text-white p-3 mb-3 rounded shadow-sm">
+            <div class="d-flex align-items-center">
+                <h1 class="h4 mb-0" id="b4"><i class="bi bi-layers-half me-2"></i>Auto Swap</h1>
+            </div>
+        </header>
+
+        <!-- Main control panel -->
+        <div class="card mb-3 border-0 shadow-sm">
+            <div class="card-body bg-gradient" style="background-color: #f8f9fa;">
+                <div class="row g-3">
+                    <!-- Import section -->
+                    <div class="col-md-6">                        
+                        <div id="queue_statistics" class="card h-100 border-0 bg-white shadow-sm align-self-start">
+                            <div class="card-body">
+                                <button id="b1" class="btn btn-primary w-100 d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-file-earmark-arrow-up me-2"></i> Import File
+                                </button>        
+                                <div id="action_buttons" class="d-flex flex-column gap-2" style="margin-top: 2rem;">
+                                    <button id="reset" class="btn btn-outline-secondary w-100" onclick="saveData();">
+                                        <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                                    </button>
+                                    <button id="export" class="btn btn-success w-100" onclick="export_3mf()">
+                                        <i class="bi bi-file-earmark-arrow-down me-1"></i> Export
+                                    </button>
+                                    <div id="progress_bar" class="progress mt-2" style="height: 5px; opacity: 0;">
+                                        <div id="progress_scale" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%;"></div>
+                                    </div>
+                                </div>                                
+                                <div id="drop_zones_wrapper" class="mini_drop_zone_V mt-2" style="visibility:hidden">
+                                    <!-- Drag and drop area -->
+                                    <div id="drop_zone" class="rounded">
+                                        <i class="bi bi-cloud-arrow-up"></i>
+                                    </div>
+                                    <div id="drop_zone_instant" class="rounded"></div>
+                                </div>                                
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Print details section -->
+                    <div class="col-md-6">
+                        <div id="queue_statistics" class="card h-100 border-0 bg-white shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title" id="t4">Print Details</h5>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span id="t2" class="text-muted">Time:</span>
+                                    <span id="total_time" class="fw-bold">0m 0s</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span id="t3" class="text-muted">Plates:</span>
+                                    <span id="used_plates" class="fw-bold">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filament usage section -->
+                    <div class="col-md-6">
+                        <div id="filament_statistics" class="card h-100 border-0 bg-white shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title" id="t4">Filament Usage</h5>
+                                <div id="filament_total" class="row g-2 mt-1">
+                                    <div class="col-3" title="1">
+                                        <div class="p-1 rounded bg-light">
+                                            <small id="t5" class="d-block text-primary fw-bold">Filament 1</small>
+                                            <small class="d-block">0.00m</small>
+                                            <small class="d-block">0.00g</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-3" title="2">
+                                        <div class="p-1 rounded bg-light">
+                                            <small id="t6" class="d-block text-success fw-bold">Filament 2</small>
+                                            <small class="d-block">0.00m</small>
+                                            <small class="d-block">0.00g</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-3" title="3">
+                                        <div class="p-1 rounded bg-light">
+                                            <small id="t7" class="d-block text-warning fw-bold">Filament 3</small>
+                                            <small class="d-block">0.00m</small>
+                                            <small class="d-block">0.00g</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-3" title="4">
+                                        <div class="p-1 rounded bg-light">
+                                            <small id="t8" class="d-block text-danger fw-bold">Filament 4</small>
+                                            <small class="d-block">0.00m</small>
+                                            <small class="d-block">0.00g</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File name section -->
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 bg-white shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title" id="t4">Custom File Name</h5>
+                                <div class="input-group">
+                                    <input id="file_name" autocomplete="off" type="text" class="form-control" placeholder="output_file_name" 
+                                        onclick="custom_file_name(this)" onload="adj_field_length(this,5,26)" 
+                                        onkeyup="adj_field_length(this,5,26)" onkeypress="adj_field_length(this,5,26)">
+                                </div>
+                                <small class="text-muted d-block mt-1">.<span id="b5">AutoSwap</span>.3mf</small>
+                                
+                                <div style="display:none;">
+                                    <label for="loops" id="b3" class="form-label mt-2">Repeat Count</label>
+                                    <input id="loops" autocomplete="off" onchange="update_statistics();" type="number" 
+                                        class="form-control" min="1" max="9999" step="1" value="1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>                   
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    
+    <div id="app_wrapper">
+        <div class="container">
+            <div id="queue_statistics" class="card h-100 border-0 bg-white shadow-sm align-self-start">
+                <div class="card-body">
+
+
+                    <div class="center" style="background-color: #f8f8f8; height: calc(100vh - 50px - 155px - 125px); width: 100%;">
+                        <div style="background-color:#f8f8f8;height:50px;margin-bottom:2px;display:none;">
+                            <table style="height:50px;width:100%; display:none;">
+                                <tbody><tr>
+                                    <td style="width: 100px;background-color:#01AE42;color:white;padding-left: 15px;border-radius: 12px;margin-left: 50px;font-size: 18px;">
+                                        <strong>Model Selection：</strong>
+                                    </td>
+                                    <td>                            
+                    <input type="radio" name="selectedFile" onchange="onSelectFileChanged(this.value,1)" id="option1" value=";========Starting to change plates =================
+        G91;
+        G380 S3 Z-20 F1200
+        G380 S2 Z75 F1200
+        G380 S3 Z-20 F1200
+        G380 S2 Z75 F1200
+        G380 S3 Z-20 F1200
+        G380 S2 Z75 F1200
+        G380 S3 Z-20 F1200
+        G1 Z5 F1200
+        G90;
+        G28 Y;
+        G91;
+        G380 S2 Z30 F1200
+        G90;
+        M211  Y0 Z0 ;
+        G91;
+        G90;
+        G1 Y260 F2000;
+        G1 Y35 F1000
+        G1 Y0 F2500
+        G91;
+        G380 S3 Z-20 F1200
+        G90;
+        G1 Y266 F2000
+        G1 Y35 F2000
+        G1 Y266 F2000
+        G1 Y250 F8000
+        G1 Y266 F8000
+        G1 Y100 F2000
+        G1 Y266 F2000
+        G1 Y250 F8000
+        G1 Y266 F8000
+        G1 Y0 F1000
+        G1 Y150 F1000
+        G28 Y;
+        ;=======End of board change===================="> A1                      
+                <script>window.onload = function() { 
+                    setTimeout(function() { loadSelectFile();
+        }, 500); }</script>                            </td>
+                                </tr>
+                            </tbody></table>
+                        </div>
+                        <div id="statistics">
+                        </div>
+                        <div id="app_content">
+                            <div id="plates_wrapper"> 
+                                <ol id="playlist_ol">
+                                </ol>
+                            </div> 
+                        </div>
+                    </div>                     
+
+                </div>
+            </div>                       
+        </div>  
+    </div> 
+        <input type="file" autocomplete="off" accept=".3mf, .gcode" id="file" class="hidden" name="file" multiple="">
+        <li id="list_item_prototype" class="list_item">
+            <div class="p_title">
+                <span class="f_id"> some_id </span>
+                <span class="f_name single-line"> some_file.3mf </span>
+                <span class="p_name"> some_plate </span> <br>
+            </div>
+            <img class="p_icon">
+            <div class="p_info" title="Duration of the plate printing and number of repeats.">
+                <span class="p_time"> [plate_time] </span>
+                <input class="p_rep" onchange="update_statistics();" type="number" min="0" max="9999" step="1" value="1">
+            </div>
+            <div class="p_filaments">
+                <div class="p_filament_prototype">
+                    <div class="f_color"> </div> <br>
+                    <span>AMS</span> <span class="f_slot"> </span> <br>
+                    <span class="f_type"> </span> <br>
+                    <span class="f_used_g"> </span> <span>g</span> <br>
+                    <span class="f_used_m"> </span> <span>m</span>
+                </div>
+            </div>
+        </li>
+        <div id="err"> </div>
+    
+
+    <script>
+        function loadSelectFile(){
+       var selectedIndex = localStorage.getItem('selectFileIndex');
+            selectedIndex = parseInt(selectedIndex, 10); 
+            if (!isNaN(selectedIndex) && selectedIndex >= 1) {
+                var item =document.getElementById('option' + selectedIndex);
+               // if(item){
+                    item.checked = true; 
+                    onSelectFileChanged(item.value,selectedIndex);
+                //} 
+                //console.log(item);
+            }else{
+                var item =document.getElementById('option' + 1);
+               //if(item){
+                    item.checked = true; 
+                    onSelectFileChanged(item.value,1);
+                //}  
+                //console.log(item);
+            }
+    };
+    </script>
+</body></html>
